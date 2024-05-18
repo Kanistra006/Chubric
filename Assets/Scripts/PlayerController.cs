@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerControllet : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     [SerializeField] float speed;
     [SerializeField] float jumpForce;
@@ -16,8 +16,11 @@ public class PlayerControllet : MonoBehaviour
     public Transform feetPos;
     public float checkRadius;
     public LayerMask whatIsGround;
+
+    private Animator animator;
     void Start()
     {
+        animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
     }
 
@@ -34,14 +37,32 @@ public class PlayerControllet : MonoBehaviour
         {
             Flip();
         }
-    }
+        if(moveInput == 0) 
+        { animator.SetBool("isRunning", false);
+
+        }
+        else
+        {
+            animator.SetBool("isRunning", true);
+
+        }
+    } 
     private void Update()
     {
         isGrounded = Physics2D.OverlapCircle(feetPos.position, checkRadius, whatIsGround);
         if (isGrounded == true && Input.GetKeyDown(KeyCode.Space))
         {
             rb.velocity = Vector2.up * jumpForce;
+            animator.SetTrigger("TakeOf");
         }
+        if(isGrounded == true) 
+        {
+            animator.SetBool("isJumping", false);
+        }
+        else 
+        {
+            animator.SetBool("isJumping", true);
+        }    
     }
     void Flip()
     {
@@ -49,5 +70,14 @@ public class PlayerControllet : MonoBehaviour
         Vector3 Scaler = transform.localScale;
         Scaler.x *= -1;
         transform.localScale = Scaler;
+
+        if(moveInput < 0)
+        {
+            transform.eulerAngles = new Vector3(0, 180, 0);
+        }
+        if (moveInput > 0)
+        {
+            transform.eulerAngles = new Vector3(0, 0, 0);
+        }
     }
 }
